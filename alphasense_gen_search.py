@@ -7,6 +7,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from webdriver_manager.chrome import ChromeDriverManager
+from semantic_search import (
+    generate_related_searches,
+)  # Import your semantic_search function
 
 
 # Function to set up the Selenium WebDriver and perform the login
@@ -81,28 +84,21 @@ def search_in_generative_search(driver, search_query):
     print("Search query submitted successfully.")
 
 
-# Function to open a new tab and perform the search in that tab
+# Function to open a new tab, load the URL, and perform the search (skip login)
 def open_new_tab_and_search(driver, search_query):
     # Open a new tab and switch to it
     driver.execute_script("window.open('');")  # Open a new tab
     driver.switch_to.window(driver.window_handles[-1])  # Switch to the new tab
-    print("New tab opened and switched.")
 
-    # Navigate directly to the "Generative Search" page in the new tab
-    driver.get("https://research.alpha-sense.com/")  # Open the URL in the new tab
+    # Load the correct URL in the new tab
+    driver.get("https://research.alpha-sense.com/")
+    print("New tab opened and URL loaded.")
 
-    # Wait for the page to load
-    WebDriverWait(driver, 15).until(
-        EC.presence_of_element_located((By.CLASS_NAME, "CodeMirror"))
-    )
-    print("Generative Search page loaded in the new tab.")
-
-    # Perform the search in the new tab
+    # Perform the search in the new tab (skip login in the second tab)
     search_in_generative_search(driver, search_query)
-    print("Search performed in the new tab.")
 
 
-# Main block to handle command-line input
+# Main block to handle command-line input and perform the operations
 def main(search_query):
     # Initialize Chrome driver
     options = webdriver.ChromeOptions()
@@ -116,8 +112,14 @@ def main(search_query):
         login(driver)
         search_in_generative_search(driver, search_query)
 
-        # Open a new tab and skip login, directly perform search in the second tab
-        open_new_tab_and_search(driver, search_query)
+        # Get related searches from semantic_search and iterate over them
+        related_searches = generate_related_searches(
+            search_query
+        )  # Generate related searches
+
+        # Open new tabs and perform searches for each related search term
+        for search in related_searches:
+            open_new_tab_and_search(driver, search)
 
     finally:
         # Keep the window open for observation
