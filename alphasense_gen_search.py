@@ -96,10 +96,48 @@ def search_in_alphasense(search_query):
         driver.execute_script("window.open('');")  # Open a new tab
         driver.switch_to.window(driver.window_handles[-1])  # Switch to the new tab
 
-        # Wait for the new tab to load
-        time.sleep(3)
+        # Navigate to AlphaSense in the new tab
+        driver.get(URL)
+        print("Navigated to AlphaSense URL in the new tab.")
 
-        # Find the search input field and enter "Tesla"
+        # Wait for the new tab to load
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.NAME, "username"))
+        )
+        print("Login page loaded in new tab.")
+
+        # Enter username in the new tab
+        username_input = driver.find_element(By.NAME, "username")
+        username_input.send_keys("sasha@katecapllc.com")
+        print("Entered username in new tab.")
+
+        # Click continue in the new tab
+        continue_button = driver.find_element(By.ID, "next-step")
+        continue_button.click()
+        print("Clicked continue in new tab.")
+
+        # Wait for password field
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, "password"))
+        )
+        password_input = driver.find_element(By.ID, "password")
+        password_input.send_keys("tvz0bur1twz_GRJ_aeu")
+        print("Entered password in new tab.")
+
+        # Click submit in the new tab
+        submit_button = driver.find_element(
+            By.CSS_SELECTOR, "button[data-testid='loginSubmitButton']"
+        )
+        submit_button.click()
+        print("Clicked submit in new tab.")
+
+        # Wait for the dashboard to load in the second tab
+        WebDriverWait(driver, 15).until(
+            EC.presence_of_element_located((By.CLASS_NAME, "CodeMirror"))
+        )
+        print("Dashboard loaded in new tab.")
+
+        # Perform the search for "Tesla" in the new tab
         search_textarea = driver.find_element(
             By.CSS_SELECTOR, "textarea[aria-invalid='false']"
         )
@@ -111,7 +149,7 @@ def search_in_alphasense(search_query):
         search_textarea.send_keys(Keys.RETURN)  # Simulating Enter key press
         print("Simulated Enter key press to submit the Tesla search.")
 
-        # Wait for search results to load (optional)
+        # Wait for the search results to load (optional)
         time.sleep(5)
         print("Tesla search query submitted successfully.")
 
